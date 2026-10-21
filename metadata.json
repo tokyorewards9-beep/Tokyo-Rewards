@@ -1,0 +1,6 @@
+{
+  "name": "Tokyo Chart",
+  "description": "Modern, responsive frontend foundation for Tokyo Chart social networking platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

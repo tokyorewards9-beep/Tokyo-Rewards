@@ -1,0 +1,230 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Tokyo Chart registered member profile",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "Account email address" },
+        "displayName": { "type": "string", "description": "Public display name" },
+        "username": { "type": "string", "description": "Unique @username handle" },
+        "dob": { "type": "string", "description": "Date of birth" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "recoveryQuestion": { "type": "string", "description": "Security question for recovery" },
+        "recoveryAnswerHash": { "type": "string", "description": "Hashed answer to security question" },
+        "avatarUrl": { "type": "string", "description": "Secure Cloudinary avatar URL" },
+        "bio": { "type": "string", "description": "Member biography" },
+        "location": { "type": "string", "description": "Location description" },
+        "website": { "type": "string", "description": "User website link" },
+        "friendsCount": { "type": "number", "description": "Count of accepted friends" },
+        "postsCount": { "type": "number", "description": "Count of authored posts" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation time" }
+      },
+      "required": ["uid", "email", "displayName", "username"]
+    },
+    "UsernameRegistry": {
+      "title": "UsernameRegistry",
+      "description": "Race-safe uniqueness record for registered handles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Claiming user UID" },
+        "username": { "type": "string", "description": "Canonical handle (@handle)" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Reservation timestamp" }
+      },
+      "required": ["uid", "username"]
+    },
+    "FriendRequest": {
+      "title": "FriendRequest",
+      "description": "Incoming and outgoing friendship invitation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Document ID" },
+        "senderId": { "type": "string", "description": "UID of sender" },
+        "senderName": { "type": "string", "description": "Display name of sender" },
+        "senderUsername": { "type": "string", "description": "Username handle of sender" },
+        "senderAvatar": { "type": "string", "description": "Avatar of sender" },
+        "receiverId": { "type": "string", "description": "UID of recipient" },
+        "receiverName": { "type": "string", "description": "Display name of recipient" },
+        "receiverUsername": { "type": "string", "description": "Username handle of recipient" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined"], "description": "Current status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["senderId", "receiverId", "status"]
+    },
+    "Friendship": {
+      "title": "Friendship",
+      "description": "Confirmed bidirectional friendship between two Tokyo Chart members",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Combined deterministic or auto-generated friendship ID" },
+        "user1Id": { "type": "string", "description": "First member UID" },
+        "user2Id": { "type": "string", "description": "Second member UID" },
+        "memberIds": { "type": "string", "description": "Array of both member UIDs" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Friendship confirmation timestamp" }
+      },
+      "required": ["user1Id", "user2Id"]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct message thread between accepted friends",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Deterministic conversation ID (uid1_uid2)" },
+        "participantIds": { "type": "string", "description": "Array of participant UIDs" },
+        "lastMessage": { "type": "object", "description": "Snippet of most recent message" },
+        "unreadCounts": { "type": "object", "description": "Map of user ID to unread message count" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last activity timestamp" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Conversation inception timestamp" }
+      },
+      "required": ["participantIds"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Direct chat message inside a conversation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message document ID" },
+        "conversationId": { "type": "string", "description": "Parent conversation ID" },
+        "senderId": { "type": "string", "description": "UID of sender" },
+        "receiverId": { "type": "string", "description": "UID of recipient" },
+        "text": { "type": "string", "description": "Message text payload" },
+        "type": { "type": "string", "enum": ["text", "image", "video"], "description": "Payload media type" },
+        "mediaUrl": { "type": "string", "description": "Secure Cloudinary URL if image/video" },
+        "mediaPublicId": { "type": "string", "description": "Cloudinary asset public ID" },
+        "read": { "type": "boolean", "description": "Read status by recipient" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Message creation timestamp" }
+      },
+      "required": ["senderId", "receiverId", "type"]
+    },
+    "Call": {
+      "title": "Call",
+      "description": "Voice and video WebRTC call signaling session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Call document ID" },
+        "callerId": { "type": "string", "description": "UID of caller" },
+        "callerName": { "type": "string", "description": "Display name of caller" },
+        "callerAvatar": { "type": "string", "description": "Avatar of caller" },
+        "calleeId": { "type": "string", "description": "UID of callee" },
+        "calleeName": { "type": "string", "description": "Display name of callee" },
+        "type": { "type": "string", "enum": ["audio", "video"], "description": "Call type" },
+        "status": { "type": "string", "enum": ["ringing", "accepted", "declined", "cancelled", "ended", "missed"], "description": "Signaling status" },
+        "offer": { "type": "object", "description": "WebRTC SDP offer" },
+        "answer": { "type": "object", "description": "WebRTC SDP answer" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Call initiation timestamp" },
+        "endedAt": { "type": "string", "format": "date-time", "description": "Call termination timestamp" }
+      },
+      "required": ["callerId", "calleeId", "type", "status"]
+    },
+    "IceCandidate": {
+      "title": "IceCandidate",
+      "description": "WebRTC ICE candidate for peer connection traversal",
+      "type": "object",
+      "properties": {
+        "candidate": { "type": "object", "description": "RTCIceCandidate payload" },
+        "senderId": { "type": "string", "description": "UID of candidate sender" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["candidate", "senderId"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "Tokyo Chart community post",
+      "type": "object",
+      "properties": {
+        "authorId": { "type": "string", "description": "UID of author" },
+        "authorName": { "type": "string", "description": "Author display name" },
+        "authorUsername": { "type": "string", "description": "Author handle" },
+        "authorAvatar": { "type": "string", "description": "Author avatar URL" },
+        "content": { "type": "string", "description": "Post body text" },
+        "mediaAttachments": { "type": "string", "description": "Cloudinary media attachments" },
+        "likesCount": { "type": "number", "description": "Count of likes" },
+        "likedBy": { "type": "string", "description": "List of user UIDs who liked" },
+        "repliesCount": { "type": "number", "description": "Count of replies" },
+        "sharesCount": { "type": "number", "description": "Count of shares" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["authorId", "authorName"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app notifications",
+      "type": "object",
+      "properties": {
+        "recipientId": { "type": "string", "description": "Target user UID" },
+        "senderId": { "type": "string", "description": "Trigger user UID" },
+        "senderName": { "type": "string", "description": "Trigger user name" },
+        "type": { "type": "string", "enum": ["like", "comment", "friend_request", "system_alert"], "description": "Category" },
+        "title": { "type": "string", "description": "Notification title" },
+        "body": { "type": "string", "description": "Notification message" },
+        "read": { "type": "boolean", "description": "Read flag" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["recipientId", "senderId", "title", "body"]
+    },
+    "MediaUpload": {
+      "title": "MediaUpload",
+      "description": "Audit record of Cloudinary uploads",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Uploader UID" },
+        "type": { "type": "string", "description": "Upload context (avatar, post, message)" },
+        "secureUrl": { "type": "string", "description": "Cloudinary HTTPS URL" },
+        "publicId": { "type": "string", "description": "Cloudinary asset public ID" },
+        "uploadedAt": { "type": "string", "format": "date-time", "description": "Timestamp" }
+      },
+      "required": ["userId", "secureUrl", "publicId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Tokyo Chart member profile documents"
+    },
+    "/usernames/{username}": {
+      "schema": { "$ref": "#/entities/UsernameRegistry" },
+      "description": "Unique username registry"
+    },
+    "/friend_requests/{requestId}": {
+      "schema": { "$ref": "#/entities/FriendRequest" },
+      "description": "Friend invitations queue"
+    },
+    "/friendships/{friendshipId}": {
+      "schema": { "$ref": "#/entities/Friendship" },
+      "description": "Active confirmed friendships"
+    },
+    "/conversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/Conversation" },
+      "description": "1-on-1 direct message conversations"
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Direct messages in conversation"
+    },
+    "/calls/{callId}": {
+      "schema": { "$ref": "#/entities/Call" },
+      "description": "WebRTC voice/video call signaling sessions"
+    },
+    "/calls/{callId}/callerCandidates/{candidateId}": {
+      "schema": { "$ref": "#/entities/IceCandidate" },
+      "description": "ICE candidates generated by caller"
+    },
+    "/calls/{callId}/calleeCandidates/{candidateId}": {
+      "schema": { "$ref": "#/entities/IceCandidate" },
+      "description": "ICE candidates generated by callee"
+    },
+    "/posts/{postId}": {
+      "schema": { "$ref": "#/entities/Post" },
+      "description": "Community posts with Cloudinary media"
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app notifications"
+    },
+    "/media_uploads/{uploadId}": {
+      "schema": { "$ref": "#/entities/MediaUpload" },
+      "description": "Audit log of Cloudinary uploads"
+    }
+  }
+}
